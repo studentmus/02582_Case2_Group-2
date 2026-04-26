@@ -1,0 +1,53 @@
+data:
+  raw_dir: "data/raw"
+  interim_dir: "data/interim"
+  processed_dir: "data/processed"
+
+  hrdata2_subdir: "HRdata2"
+  hrdata2_pattern: "*.csv"
+
+  index_col: "Unnamed: 0"
+  round_col: "Round"
+  phase_col: "Phase"
+  individual_col: "Individual"
+  puzzler_col: "Puzzler"
+  original_id_col: "original_ID"
+  raw_path_col: "raw_data_path"
+  team_id_col: "Team_ID"
+  cohort_col: "Cohort"
+
+  frustration_col: "Frustrated"
+  panas_cols:
+    - "upset"
+    - "hostile"
+    - "alert"
+    - "ashamed"
+    - "inspired"
+    - "nervous"
+    - "attentive"
+    - "afraid"
+    - "active"
+    - "determined"
+
+preprocessing:
+  # How to handle missing values in feature columns
+  imputation_strategy: "median"    # "median" | "mean" | "drop_rows"
+
+  # Scaling of continuous features
+  scale_features: true             # true | false
+  scaler: "standard"               # "standard" | "minmax"
+
+  # Target for simple supervised tasks (optional)
+  target:
+    type: "phase"                  # "phase" | "frustration_binary" | "none"
+    phase_mapping:
+      Rest: 0
+      Puzzle: 1
+      Recovery: 2
+    frustration_threshold: 5       # >= threshold -> high frustration (1), else 0
+
+  # Whether to one-hot encode phase for downstream clustering/representation
+  encode_phase_one_hot: false
+
+  # Whether to drop PANAS columns from features (keep only as metadata/labels)
+  drop_panas_from_features: true
