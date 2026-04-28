@@ -17,6 +17,7 @@ class PreprocessConfig:
   imputation_strategy: str = "median"   # "median" | "mean" | "drop_rows"
   scale_features: bool = True
   scaler: str = "standard"             # "standard" | "minmax"
+  subject_center: bool = False          # added subject centering flag
 
   target_type: str = "phase"           # "phase" | "frustration_binary" | "none"
   phase_mapping: Dict[str, int] = None
@@ -133,6 +134,19 @@ def _build_target(
 
   raise ValueError(f"Unknown target_type: {pp_cfg.target_type}")
 
+def _subject_center(
+    features_df: pd.DataFrame,
+    individual_col: pd.Series,
+) -> pd.DataFrame:
+    """
+    for each individual, subtracting their mean feature vector
+    this should remove inter-subject baseline differences
+    """
+    df = features_df.copy()
+    df["_individual"] = individual_col.values
+    centered = df.groupby("_individual").transform(lambda x: x - x.mean())
+    return centered
+
 
 def preprocess_features(
   loaded: LoadedFeatures,
@@ -166,6 +180,11 @@ def preprocess_features(
 
   # 1) Imputation
   features_imputed = _impute_features(features_df, strategy=pp_cfg.imputation_strategy)
+
+  # 2) Subject centering
+  if pp_cfg.subject_center:
+    individual_col = metadata_df[data_cfg.individual_col]
+    features_imputed = _subject_center(features_imputed, individual_col)
 
   # 2) Scaling
   X = features_imputed.to_numpy(dtype=float)
