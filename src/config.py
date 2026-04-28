@@ -66,7 +66,7 @@ class DataConfig:
 
 @dataclass
 class Config:
-    data: DataConfig = field(default_factory=DataConfig) # changed initialization to use default_factory
+    data: DataConfig = DataConfig()
 
     def to_dict(self) -> Dict:
         return {
